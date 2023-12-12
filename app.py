@@ -1,5 +1,4 @@
 # -*- coding:utf-8 -*-
-import time
 from concurrent.futures import ThreadPoolExecutor
 from io import StringIO
 
@@ -10,7 +9,7 @@ from lxml import etree
 
 from settings import *
 
-logger.add(os.path.join(DUMP_DIR, 'tac_crawler_{time:YYYYMMDD}.log'), rotation="1 MB", retention="7 days",
+logger.add(os.path.join(DUMP_DIR, 'tac_crawler_{time:YYYYMMDD}.log'), rotation="50 MB", retention="3 days",
            compression="gz", enqueue=True)
 
 
