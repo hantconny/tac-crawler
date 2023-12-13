@@ -16,8 +16,6 @@ logger.add(os.path.join(DUMP_DIR, 'tac_crawler_{time:YYYYMMDD}.log'), rotation="
 def _fetch(_page, _scraper):
     resp = _scraper.get('https://swappa.com/imei/tac?page={}'.format(_page))
 
-    time.sleep(1)
-
     tables = pandas.read_html(StringIO(resp.text), converters={'TAC': str, 'Devices': str, 'Brand': str})
 
     with open(os.path.join(DUMP_DIR, 'tac_{ts}.text'.format(ts=TODAY)), mode='a', encoding='utf-8') as f:
@@ -25,7 +23,10 @@ def _fetch(_page, _scraper):
             for line in zip(table['TAC'], table['Brand'], table['Devices']):
                 tac, brand, devices = line
                 # logger.debug(line)
-                f.write('|'.join([tac, brand, devices]) + '\n')
+                """
+                页面devices为空的项在解析后会变成float类型的nan，对于此类型的数据，直接转成空字符串
+                """
+                f.write('|'.join([tac, brand, '' if type(devices) is float else devices]) + '\n')
 
     logger.success('page {} done', _page)
 
