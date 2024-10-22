@@ -19,7 +19,7 @@ if not os.path.exists(DUMP_DIR):
 TODAY = time.strftime('%Y%m%d', time.localtime())
 CHROME_TEST = 'D:/ENV/chromedriver/chrome-win64/chrome.exe'
 
-PROXY_ENABLED = True
+PROXY_ENABLED = False
 HTTP_PROXY = '127.0.0.1:7890'
 
 RETRY_LIMIT = 5
