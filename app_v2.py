@@ -1,9 +1,7 @@
 # -*- coding:utf-8 -*-
-import time
 from concurrent.futures import ThreadPoolExecutor
 from io import StringIO
 
-import cloudscraper
 import pandas
 from DrissionPage._pages.chromium_page import ChromiumPage
 from loguru import logger
@@ -29,7 +27,7 @@ def _fetch(_page, driver):
                 """
                 页面devices为空的项在解析后会变成float类型的nan，对于此类型的数据，直接转成空字符串
                 """
-                f.write('|'.join([tac, brand, '' if type(devices) is float else devices]) + '\n')
+                f.write('|'.join([tac, '' if type(brand) is float else brand, '' if type(devices) is float else devices]) + '\n')
 
     logger.success('page {} done', _page)
 
