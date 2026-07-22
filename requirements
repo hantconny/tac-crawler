@@ -1,0 +1,5 @@
+selenium
+loguru
+lxml
+tqdm
+dotenv
