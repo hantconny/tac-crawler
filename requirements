@@ -3,3 +3,4 @@ loguru
 lxml
 tqdm
 dotenv
+requests

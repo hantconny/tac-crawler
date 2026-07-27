@@ -1,10 +1,10 @@
 # -*- coding:utf-8 -*-
+
+import requests
 from loguru import logger
 from lxml import etree
-from selenium.webdriver.common.by import By
 from tqdm import trange
 
-from selenium_utils import init_chrome_driver
 from settings import *
 
 logger.add(os.path.join(DUMP_DIR, 'tac_crawler_{time:YYYYMMDD}.log'), rotation="50 MB", retention="3 days",
@@ -17,9 +17,9 @@ def _parse_rows(page_source):
     每行三列：TAC、Brand、Devices。Brand可能为空；Devices为<ul><li>列表，可能为空。
     返回 [(tac, brand, devices), ...]，devices多个型号以逗号连接。
     """
-    doc = etree.HTML(page_source)
+    page_doc = etree.HTML(page_source)
     rows = []
-    for tr in doc.xpath('//table[contains(@class, "table")]/tbody/tr'):
+    for tr in page_doc.xpath('//table[contains(@class, "table")]/tbody/tr'):
         tds = tr.xpath('./td')
         if len(tds) < 3:
             continue
@@ -34,18 +34,19 @@ def _parse_rows(page_source):
         if not tac:
             continue
 
-        rows.append((tac, brand, ','.join(devices)))
+        rows.append((tac, brand, '  '.join(devices)))
     return rows
 
 
-def _fetch(_page, driver):
+def _fetch(_page):
     retry = 0
     max_retry = 5
     while retry < max_retry:
         try:
-            driver.get('https://swappa.com/imei/tac?page={}'.format(_page))
+            page_resp = requests.get(
+                'http://192.168.185.83:4321/html?url=https://swappa.com/imei/tac?page={}'.format(_page))
 
-            rows = _parse_rows(driver.page_source)
+            rows = _parse_rows(page_resp.text)
 
             if not rows:
                 raise ValueError('page {} 未解析到任何数据，可能响应异常'.format(_page))
@@ -68,18 +69,16 @@ def _fetch(_page, driver):
 
 if __name__ == '__main__':
 
-    driver = init_chrome_driver('d:/tmp/')
-
-    driver.get('https://swappa.com/imei/tac')
+    resp = requests.get('http://192.168.185.83:4321/html?url=https://swappa.com/imei/tac')
 
     time.sleep(10)
 
-    doc = etree.HTML(driver.page_source)
+    doc = etree.HTML(resp.text)
 
     total_page = int(doc.xpath('//a[@title="Last Page"]/@href')[0].split('=')[1])
 
     for page in range(1, total_page + 1):
-        _fetch(page, driver)
+        _fetch(page)
         time.sleep(10)
 
     logger.success('all done')
